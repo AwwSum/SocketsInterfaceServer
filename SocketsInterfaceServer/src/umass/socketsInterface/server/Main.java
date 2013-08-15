@@ -24,7 +24,7 @@ public class Main {
 			case 3: port = Integer.parseInt(args[0]);
 					numThreads = Integer.parseInt(args[1]);
 					maxNumConnections = Integer.parseInt(args[2]);
-					backlog = 10;
+					backlog = 50; //50 is the default for TCP Sockets.
 					break;
 			case 4: port = Integer.parseInt(args[0]);
 					numThreads = Integer.parseInt(args[1]);
@@ -76,17 +76,10 @@ public class Main {
 			e.printStackTrace();
 			System.exit(-1);
 		}
-		
 		/*
 		while(true){
 			
 			
-		}*/
-		
-
-			
-	}
-
-	
-	
+		}*/	
+	}	
 }
