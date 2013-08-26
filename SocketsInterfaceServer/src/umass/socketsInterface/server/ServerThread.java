@@ -1,6 +1,5 @@
 package umass.socketsInterface.server;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -98,58 +97,62 @@ public class ServerThread extends Thread{
 		try{
 			OutputStream myStream = this.getMyStream(); // hold onto this so we can use it below
 			//detect commands and take action; either forward it to the connected client, or to another thread.
-			switch(cmd){
-				case "CONNECT": System.out.println("ServerThread " + this.getId() + ": received CONNECT message.");
-							InetSocketAddress peerAddr = commands.parseAddr_Conn(inStr);
-							OutputStream threadStream = prodCons.streamMapLookup(peerAddr); //stream to send data to thread connected to peerAddr
-							
-							if(!threadStream.equals(myStream)){ //if this thread isn't responsible for the client (it probably isn't)
-								BufferedWriter outStreamToThread = new BufferedWriter(new OutputStreamWriter(threadStream));
-								outStreamToThread.write(inStr); //then forward the message over to the right server thread
-								outStreamToThread.newLine();
-								outStreamToThread.flush();
-							}
-							else{ //else, a client may want to connect to itself for some reason, or we received a request from another server thread.
-								outStream.write(inStr);
-								outStream.newLine();
-								outStream.flush();
-							}
-							break;
-				case "CONNECT_ACCEPT": System.out.println("ServerThread " + this.getId() + ": received CONNECT_ACCEPT message.");
-							InetSocketAddress destAddr = commands.parseAddr_ConnAccept(inStr);
-							OutputStream destThreadStream = prodCons.streamMapLookup(destAddr); //echo the message to its destination.
-							
-							if(!destThreadStream.equals(myStream)){ //forward the message to the appropriate server thread
-								BufferedWriter outStreamToOtherThread = new BufferedWriter(new OutputStreamWriter(destThreadStream));
-								outStreamToOtherThread.write(inStr); //then forward the message over to the right server thread
-								outStreamToOtherThread.newLine();
-								outStreamToOtherThread.flush();
-							}
-							else{ //pass the message on to the client connected to this server thread
-								outStream.write(inStr);
-								outStream.newLine();
-								outStream.flush();
-							}
-							break;
-				case "DATA": System.out.println("ServerThread " + this.getId() + ": received DATA message.");
-							InetSocketAddress dataDestAddr = commands.parseAddr_Data(inStr);
-							OutputStream destDataStream = prodCons.streamMapLookup(dataDestAddr); //echo the message to its destination server thread
-							
-							if(!destDataStream.equals(myStream)){ //forward the message to the appropriate server thread
-								BufferedWriter outStreamToOtherThread = new BufferedWriter(new OutputStreamWriter(destDataStream));
-								outStreamToOtherThread.write(inStr); //then forward the message over to the right server thread
-								outStreamToOtherThread.newLine();
-								outStreamToOtherThread.flush();
-							}
-							else{ //pass the message on to the client connected to this server thread
-								outStream.write(inStr);
-								outStream.newLine();
-								outStream.flush();
-							}
-							
-							break;
-				default: System.out.println("ServerThread " + this.getId() + ": received unrecognized command '" + inStr + "' from connected client.");
-			}
+			
+				if(cmd.equals("CONNECT")){ 
+					System.out.println("ServerThread " + this.getId() + ": received CONNECT message.");
+					InetSocketAddress peerAddr = commands.parseAddr_Conn(inStr);
+					OutputStream threadStream = prodCons.streamMapLookup(peerAddr); //stream to send data to thread connected to peerAddr
+					
+					if(!threadStream.equals(myStream)){ //if this thread isn't responsible for the client (it probably isn't)
+						BufferedWriter outStreamToThread = new BufferedWriter(new OutputStreamWriter(threadStream));
+						outStreamToThread.write(inStr); //then forward the message over to the right server thread
+						outStreamToThread.newLine();
+						outStreamToThread.flush();
+					}
+					else{ //else, a client may want to connect to itself for some reason, or we received a request from another server thread.
+						outStream.write(inStr);
+						outStream.newLine();
+						outStream.flush();
+					}
+				}
+				else if(cmd.equals("CONNECT_ACCEPT")){
+					System.out.println("ServerThread " + this.getId() + ": received CONNECT_ACCEPT message.");
+					InetSocketAddress destAddr = commands.parseAddr_ConnAccept(inStr);
+					OutputStream destThreadStream = prodCons.streamMapLookup(destAddr); //echo the message to its destination.
+					
+					if(!destThreadStream.equals(myStream)){ //forward the message to the appropriate server thread
+						BufferedWriter outStreamToOtherThread = new BufferedWriter(new OutputStreamWriter(destThreadStream));
+						outStreamToOtherThread.write(inStr); //then forward the message over to the right server thread
+						outStreamToOtherThread.newLine();
+						outStreamToOtherThread.flush();
+					}
+					else{ //pass the message on to the client connected to this server thread
+						outStream.write(inStr);
+						outStream.newLine();
+						outStream.flush();
+					}
+				}
+				else if(cmd.equals("DATA")){
+					System.out.println("ServerThread " + this.getId() + ": received DATA message.");
+					InetSocketAddress dataDestAddr = commands.parseAddr_Data(inStr);
+					OutputStream destDataStream = prodCons.streamMapLookup(dataDestAddr); //echo the message to its destination server thread
+					
+					if(!destDataStream.equals(myStream)){ //forward the message to the appropriate server thread
+						BufferedWriter outStreamToOtherThread = new BufferedWriter(new OutputStreamWriter(destDataStream));
+						outStreamToOtherThread.write(inStr); //then forward the message over to the right server thread
+						outStreamToOtherThread.newLine();
+						outStreamToOtherThread.flush();
+					}
+					else{ //pass the message on to the client connected to this server thread
+						outStream.write(inStr);
+						outStream.newLine();
+						outStream.flush();
+					}
+				}
+				else{
+					System.out.println("ServerThread " + this.getId() + ": received unrecognized command '" + inStr + "' from connected client.");
+				}
+			
 		}catch (IOException e) {
 			System.out.println("ServerThread " + this.getId() + ": Exception in thread.");
 			// TODO Auto-generated catch block

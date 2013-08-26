@@ -10,26 +10,23 @@ public class Main {
 
 		int port = -1;
 		int numThreads = -1;
-		int maxNumConnections = -1;
 		int backlog = -1; //max number of queued connections; will reject further connections.
 
 		//Ensure that the correct number of arguments have been passed.
-		if(!(args.length == 3 || args.length == 4)){
-			System.out.println("Usage: <port> <numThreads> <maxNumConnections> [<backlog>]");
+		if(!(args.length == 2 || args.length == 3)){
+			System.out.println("Usage: <port> <numThreads> [<backlog>]");
 			System.exit(-1);
 		}
 		
 		//Logic for setting the input arguments correctly.
 		switch(args.length){
-			case 3: port = Integer.parseInt(args[0]);
+			case 2: port = Integer.parseInt(args[0]);
 					numThreads = Integer.parseInt(args[1]);
-					maxNumConnections = Integer.parseInt(args[2]);
 					backlog = 50; //50 is the default for TCP Sockets.
 					break;
-			case 4: port = Integer.parseInt(args[0]);
+			case 3: port = Integer.parseInt(args[0]);
 					numThreads = Integer.parseInt(args[1]);
-					maxNumConnections = Integer.parseInt(args[2]);
-					backlog = Integer.parseInt(args[3]);
+					backlog = Integer.parseInt(args[2]);
 					break;
 			default: System.out.println("Error parsing input arguments.");
 		}
@@ -40,15 +37,13 @@ public class Main {
 		
 		//start up socket for accepting incoming connections.
 		try {
-			InetAddress localAddress = InetAddress.getByName("localhost");
-			ServerSocket incomingSocket = new ServerSocket(port, backlog, localAddress);
+			ServerSocket incomingSocket = new ServerSocket(port, backlog); //bind to 0.0.0.0 aka >all interfaces<
 			incomingSocket.setReuseAddress(true);
-			//incomingSocket.setSoTimeout(60000); 
 			
 			//get a copy of the instantiation of ProdConsStructures
 			ProdConsStructures prodConsStruct = ProdConsStructures.getInstance();
 			
-			//initialize thread pool
+			//initialize thread pool - creates and starts all threads.
 			ThreadPool myThreadPool = new ThreadPool(numThreads);
 			
 			//print out status message
@@ -57,18 +52,17 @@ public class Main {
 			System.out.println("Server receive buffer size is: " + incomingSocket.getReceiveBufferSize());
 			
 			//accept a connection, add it to the producer-consumer queue to feed the threads.
-			//TODO: make this some kind of infinite loop - it is currently just a few connections.
-			for(int i = 0; i < maxNumConnections; i++){
+			while(true){
 				Socket newConn = incomingSocket.accept();
 				System.out.println("Main: Accepted a new connection.");
 				prodConsStruct.insertPendingConn(newConn);
 			}
 			
-			//wait for all threads to end
-			myThreadPool.joinThreads();
+			//wait for all threads to end - not important, since the kernel will kill these threads.
+			//myThreadPool.joinThreads();
 			
-			//clean up
-			incomingSocket.close();
+			//clean up - not important, since SO_REUSEADDR is used.
+			//incomingSocket.close();
 			
 		} catch (IOException e) {
 			System.out.println("IOException in main thread.");
@@ -76,10 +70,5 @@ public class Main {
 			e.printStackTrace();
 			System.exit(-1);
 		}
-		/*
-		while(true){
-			
-			
-		}*/	
 	}	
 }

@@ -109,13 +109,4 @@ public class Commands {
 		}
 		return null;
 	}
-	
-	/*
-	//given a CONNECT <IPADDR> <PORT> request, returns <IPADDR>
-	public int parsePort(String connectReqStr){
-		String inString = connectReqStr.trim(); //clean the input string
-		String[] args = inString.split(" ");
-		return Integer.parseInt(args[2]);
-	}
-	*/
 }
