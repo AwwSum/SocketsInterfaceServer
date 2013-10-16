@@ -32,6 +32,7 @@ public class ThreadPool {
 	
 	/*
 	 * Attempts to join all threads in the thread pool. 
+	 * 
 	 */
 	synchronized void joinThreads(){
 		for(int i = 0; i < threadVec.size(); i++){

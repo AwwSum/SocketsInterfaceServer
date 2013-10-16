@@ -31,7 +31,6 @@ public class Main {
 			default: System.out.println("Error parsing input arguments.");
 		}
 		
-		
 		//get the number of threads to use in the thread pool.
 		System.out.println("System running with thread pool of size: " + numThreads);//debug
 		

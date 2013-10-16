@@ -14,6 +14,7 @@ import java.io.BufferedReader;
  * Thread class for the thread pool used by the server to communicate
  * 	with clients after the main thread has accept()'ed their connections
  * 	and placed their sockets into ProdConsStructures.
+ * 
  */
 
 public class ServerThread extends Thread{

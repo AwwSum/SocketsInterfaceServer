@@ -16,6 +16,7 @@ import java.util.concurrent.locks.*;
 
 
 //TODO: separate queues for sender/receiver client connections. 
+
 public class ProdConsStructures {
 	//for singleton pattern
 	private static boolean hasBeenInstantiated = false;
